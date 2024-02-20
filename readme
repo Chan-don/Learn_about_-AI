@@ -1,0 +1,9 @@
+First, make 'gitignore'
+what is 'Virtual environment'?
+    - Can do many project. which is protected other project version. makes some area.
+    - how to make? :
+        1. 'python -m venv ./env' in your terminal
+        2. '/env' in your .gitignore.
+            - why? : '/env' is protect unnecessary program.
+        3. 'env\Scripts\activate.bat' in your terminal
+            - why? : your second storage.
