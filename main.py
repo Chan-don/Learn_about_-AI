@@ -15,28 +15,23 @@ class CommaOutputParser(BaseOutputParser):
     def parse(self, text):
         items = text.strip().split(",")
         return list(map(str.strip,items))
-    
-p = CommaOutputParser()
-
-p.parse("Hello, how, are , you")
 
 # this code is how to run the OutputParser.
 #-- plus code --
 
-template = ChatPromptTemplate.from_messages([
+template1 = ChatPromptTemplate.from_messages([
     ("system", "You are a list generating machine. Every thing you are asked will be answered with a comma, list of max {max_items} in lowercase. DO NOT reply with anything else."),
     ("human", "{question}"),
 ])
 
-prompt = template.format_messages(
-    max_items = "5",
-    question = "What are the color"
-)
-
-result = chat.predict_messages(prompt)
-
-p = CommaOutputParser()
-
-p.parse(result.content)
-
 # this code is how to use the OutputParser at Ai chat.
+#-- plus code --
+
+Chain1 = template1|chat|CommaOutputParser()
+Chain1.invoke({
+    "max_items": 5,
+    "question": "What are the sports car model name?"
+})
+
+# | is best code in here, that can divide code each other.
+# So, first you write the each part. and collect to using by '|'code.
