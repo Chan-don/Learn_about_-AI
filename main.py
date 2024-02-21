@@ -1,30 +1,42 @@
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import PromptTemplate, ChatPromptTemplate
+from langchain.prompts import ChatPromptTemplate
 
 chat = ChatOpenAI(
     temperature=0.1
     #temperature valuse high == creativity is high. 
 )
 
-template = PromptTemplate.from_template("What is the distance between {country_a} and {country_b}",)
+#-- plus code --
 
-prompt = template.format(country_a = "Korea", country_b = "USA")
+from langchain.schema import BaseOutputParser
 
-chat.predict(prompt)
+class CommaOutputParser(BaseOutputParser):
+
+    def parse(self, text):
+        items = text.strip().split(",")
+        return list(map(str.strip,items))
+    
+p = CommaOutputParser()
+
+p.parse("Hello, how, are , you")
+
+# this code is how to run the OutputParser.
+#-- plus code --
 
 template = ChatPromptTemplate.from_messages([
-    ("system", "Your are a geograpy expert. And you only reply in {language}."),
-    ("ai", "Hi!, My name is {name}!"),
-    ("human", "What is the distance between {country_a} and {country_b}. Also, what is your name?"),
+    ("system", "You are a list generating machine. Every thing you are asked will be answered with a comma, list of max {max_items} in lowercase. DO NOT reply with anything else."),
+    ("human", "{question}"),
 ])
 
-# -- plus code --
-
 prompt = template.format_messages(
-    language = "Korean",
-    name = "Chae Eun",
-    country_a = "Korea",
-    country_b = "USA",
+    max_items = "5",
+    question = "What are the color"
 )
 
-chat.predict_messages(prompt)
+result = chat.predict_messages(prompt)
+
+p = CommaOutputParser()
+
+p.parse(result.content)
+
+# this code is how to use the OutputParser at Ai chat.
