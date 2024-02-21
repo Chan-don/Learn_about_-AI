@@ -1,19 +1,30 @@
 from langchain.chat_models import ChatOpenAI
+from langchain.prompts import PromptTemplate, ChatPromptTemplate
 
 chat = ChatOpenAI(
     temperature=0.1
     #temperature valuse high == creativity is high. 
 )
 
-from langchain.schema import HumanMessage, AIMessage, SystemMessage
-#HumanMessage == we know things.
-#AIMessage == we sent to AI
-#SystemMessage == provide to setting
+template = PromptTemplate.from_template("What is the distance between {country_a} and {country_b}",)
 
-messages = [
-    SystemMessage(content="Your are a geograpy expert. And you only reply in Korean."),
-    AIMessage(content="안녕!, 나는 미래야!"),
-    HumanMessage(content="What is the distance between seoul and New york city. Also, what is your name?"),
-]
+prompt = template.format(country_a = "Korea", country_b = "USA")
 
-chat.predict_messages(messages)
+chat.predict(prompt)
+
+template = ChatPromptTemplate.from_messages([
+    ("system", "Your are a geograpy expert. And you only reply in {language}."),
+    ("ai", "Hi!, My name is {name}!"),
+    ("human", "What is the distance between {country_a} and {country_b}. Also, what is your name?"),
+])
+
+# -- plus code --
+
+prompt = template.format_messages(
+    language = "Korean",
+    name = "Chae Eun",
+    country_a = "Korea",
+    country_b = "USA",
+)
+
+chat.predict_messages(prompt)
