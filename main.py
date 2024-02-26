@@ -1,5 +1,7 @@
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain.prompts import PromptTemplate
+from langchain.prompts.few_shot import FewShotPromptTemplate
+#prompts.few_shot is shortcut to prompts. 
 from langchain.callbacks import StreamingStdOutCallbackHandler
 #callbacks is the live streaming the chat answer while run code
 
@@ -10,23 +12,14 @@ chat = ChatOpenAI(
     # and callbacks code is to combine the streaming code
 )
 
-sportsCar_prompt = sports_car_template = ChatPromptTemplate.from_messages([
-    ("system", "You are a best car dealer. You create recommend which sports car is best to me."),
-    ("human", "I want to {car_type} car."),
-])
+t = PromptTemplate.from_template("what is the capital of {country}")
 
-sports_car_chain = sportsCar_prompt | chat 
-#-- plus code --
+t.format(country="france")
+# Upper code is shortcode to show prompts
 
-bestSportsCar_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You work at a used sports car dealership. So, we have a vehicle that we can recommend to our customers. However, customers don't need detailed information about the car, they just want to know the make and model of the car. You need to sort them into categories and show them to your guests. You should also tell the customer if there is a type of car they want."),
-    ("human", "{car}"),
-])
-
-best_sports_car_chain = bestSportsCar_prompt | chat
-
-final_chain = {"car" : sports_car_chain} | best_sports_car_chain
-
-final_chain.invoke({
-    "car_type": "convertible",
-})
+t = PromptTemplate(
+    template= "what is the capital of {country}",
+    input_variables=["country"],
+)
+t.format(country="Seoul")
+# Upper code is principled to show prompts.
