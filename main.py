@@ -1,9 +1,10 @@
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import ChatMessagePromptTemplate, ChatPromptTemplate
-from langchain.prompts.few_shot import FewShotChatMessagePromptTemplate
+from langchain.prompts.few_shot import FewShotPromptTemplate
 #FewShotPromptTemplate provieds specific prompt templates. Like, Just Capital letter or Just small letter, space, comma, etc..
 from langchain.callbacks import StreamingStdOutCallbackHandler
 #callbacks is the live streaming the chat answer while run code
+from langchain.prompts import PromptTemplate
+from langchain.prompts.example_selector.base import BaseExampleSelector
 
 chat = ChatOpenAI(
     temperature=0.1, streaming=True, callbacks=[StreamingStdOutCallbackHandler(),],
@@ -45,27 +46,31 @@ examples = [
     },
 ]
 
-example_prompt = ChatPromptTemplate.from_messages([
-    ("human", "what do you know about {country}?"),
-    ("ai", "{answer}"),
-])
-example_prompt = FewShotChatMessagePromptTemplate(
-    example_prompt= example_prompt,
+class RandomExampleSelector(BaseExampleSelector):
+    def __init__(self, examples):
+        self.examples = examples
+
+    def add_example(self, example):
+        self.examples.append(example)
+
+    def select_examples(self, input_varialbes):
+        from random import choice
+
+        return [choice(self.examples)]
+    # Upper Code is get random Examples at 'Example Template'
+
+
+example_prompt = PromptTemplate.from_template("Human: {country}\nAI: {answer}")
+
+example_selector= RandomExampleSelector(
     examples=examples,
 )
 
-final_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a travel expert."),
-    example_prompt,
-    ("human", "what do you know about {country}?")
-])
-# first, AI see the system string.
-# Second, AI see the 'example_prompt' and learn about answer template itself
-# Third, human speak to AI
+prompt = FewShotPromptTemplate(
+    example_prompt= example_prompt,
+    example_selector=example_selector,
+    suffix="Human: What do you know about {country}?",
+    input_variables=["country"],
+)
 
-chain = final_prompt | chat
-
-chain.invoke({
-    "country": "United Kingdom"
-})
-#Upper code is Run prompt according to 'chat'
+prompt.format(country = "Brazil")
