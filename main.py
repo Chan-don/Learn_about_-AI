@@ -2,68 +2,30 @@ from langchain.chat_models import ChatOpenAI
 #FewShotPromptTemplate provieds specific prompt templates. Like, Just Capital letter or Just small letter, space, comma, etc..
 from langchain.callbacks import StreamingStdOutCallbackHandler
 #callbacks is the live streaming the chat answer while run code
-from langchain.prompts import PromptTemplate
-from langchain.prompts.pipeline import PipelinePromptTemplate
-# pipeline can combine many prompts together.
+from langchain.globals import set_llm_cache, set_debug
+#If you use 'cache'. you can save LM(Langauge Model) answer.
+#'debug' is show the log answer. and also show the model name
+from langchain.cache import InMemoryCache, SQLiteCache
+# if you want cache save at the Memory, You use 'SQLiteCache'
+
+#set_llm_cache(InMemoryCache())
+# this is simpe Cache
+
+#set_debug(True)
+# this is debug 
+
+set_llm_cache(SQLiteCache("cache.db"))
+# this is cache save at the Memory. (SQLiteCache("[name]"))
+# if you use this code. 'cache.db' will appear in the 'file list' next to it.
 
 chat = ChatOpenAI(
-    temperature=0.1, streaming=True, callbacks=[StreamingStdOutCallbackHandler(),],
-    #temperature valuse high == creativity is high.
-    #streaming is live streaming. so, streaming = True means run streaming.
-    # and callbacks code is to combine the streaming code
+    temperature=0.1,
 )
 
-intro = PromptTemplate.from_template(
-    """
-    You are a role playing assistant
-    And you are impersonating a {character}
-"""
-)
+chat.predict("How do you make italian pasta")
 
-example = PromptTemplate.from_template(
-    """
-    This is an example of how you talk:
-    Human: {example_question}
-    You: {example_answer}
-"""
-)
+# --- next code ---
 
-start = PromptTemplate.from_template(
-    """
-    Start now!
-
-    Human: {question}
-    You:
-"""
-)
-
-final = PromptTemplate.from_template(
-    """
-    {intro}
-
-    {example}
-
-    {start}
-"""
-)
-
-prompts = [
-    ("intro", intro),
-    ("example", example),
-    ("start", start),
-]
-# ("intro") == value key, intro == just name. You can change name what you want.
-
-
-
-full_prompt = PipelinePromptTemplate(final_prompt=final, pipeline_prompts= prompts,)
-
-
-chain = full_prompt | chat
-
-chain.invoke({
-    "character": "Pirate",
-    "example_question" : "What is your location?",
-    "example_answer" : "Arrrg!! That is a secret!! Arrrg",
-    "question" : "What is your fav food?",
-})
+chat.predict("How do you make italian pasta")
+#This answer is didn't say LLM, Just Loaded at save LM(Langauge Model). We called this 'cache'
+#Why use cache? == Save LLM is Save time is Save Money.
