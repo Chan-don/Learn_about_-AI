@@ -1,17 +1,20 @@
-from langchain.chat_models import ChatOpenAI
-from langchain.callbacks import get_openai_callback
+#If you want to chain model
+from langchain.llms.openai import OpenAI
 
-chat = ChatOpenAI(
-    temperature=0.1,
+chat = OpenAI(
+    temperature= 0.1,
+    max_tokens=450,
+    model="gpt-3.5-turbo-0125"
 )
 
-with get_openai_callback() as usage:
-    a = chat.predict("what is the recipe for soju")
-    b = chat.predict("what is the recipe for beer")
-    print(a, b, "\n")
-    print(usage)
-# if you want to show prise to use.
-# You must use. 'with' 'get_openai_callback()' 'as' usage:
-    # ~~
-    # print(usage)
-# You must use this! for show prise
+chat.save("model.json")
+# if you want save model. use upper code
+# And then you can see 'model.json' at the left 'file-list'
+
+# or you can also write this code.
+# NEW CODE
+from langchain.llms.loading import load_llm
+
+chat = load_llm("model.json")
+
+chat
