@@ -1,39 +1,30 @@
-# A lot of data takes a lot of buffers.
-# A lot of buffers requires a lot of data, and a lot of data requires a lot of execution time and moeny.
-# So, our solution is store 1 to 5 data. And add 6 data(New data). And then delete first data(old data) at the memory.
-# We use 'ConversationBufferWindowMeomory' WindowMemory
-from langchain.memory import ConversationBufferWindowMemory
+# If you store memory at llm model
+# You use 'ConversationSummaryMemory' SummaryMemory 
+# ConverstionSummaryMemory is not just storage.
+# That is to give a summary of the conversations.
+# Initially, SummaryMemory take more token and space more than other conversation.
+# However, as time passes and conversations accumulate, SummaryMemory can be helpful in anwsering.
+from langchain.memory import ConversationSummaryMemory
+from langchain.chat_models import ChatOpenAI
 
-memory = ConversationBufferWindowMemory(
-    return_messages= True,
-    k=4,
-)
+llm = ChatOpenAI(temperature= 0.1)
+
+memory = ConversationSummaryMemory(llm=llm)
+#llm = llm means this code will be needs money
 
 def add_message(input, output):
-    memory.save_context({"input" : input}, {"output" : output})
+    memory.save_context({"input": input}, {"output": output})
 
-add_message(1,1)
+def get_histroy():
+    return memory.load_memory_variables({})
 
-# -- next code --
-add_message(2,2)
-add_message(3,3)
-add_message(4,4)
+add_message("Hi I'm Chandon, I live in South Korea", "Wow that is so nice!")
 
 # -- next code --
 
-memory.load_memory_variables({})
-# what is '({})' ?
-# () is do function code. {} is api.
+add_message("South Korea is so nice country!", "I want to travel South Korea!")
 
 # -- next code --
 
-# Upper conclusion is add_message() 1 to 4
-# But, we add new message
-add_message(5,5)
-
-# -- next code --
-
-memory.load_memory_variables({})
-# So, delete (1,1) at memory(old memory).
-# Add, (5,5) at memory(new memory)
-# This is a way protect memory from excessive buffering.
+get_histroy()
+# This conclusion is a summary of the data I wrote down in memory.
