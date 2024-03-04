@@ -1,29 +1,39 @@
-# 'Conversation Buffer Memory'
-# We must use memory!
-# Why memory? Because, memory can store personal data.
-# Langchain model and model doesn't have memory. So, we must store data using memory.
-# Provides vivid conversation as if a person were speaking.
-# This memory is simple. But, this memory unsuitable big data.
+# A lot of data takes a lot of buffers.
+# A lot of buffers requires a lot of data, and a lot of data requires a lot of execution time and moeny.
+# So, our solution is store 1 to 5 data. And add 6 data(New data). And then delete first data(old data) at the memory.
+# We use 'ConversationBufferWindowMeomory' WindowMemory
+from langchain.memory import ConversationBufferWindowMemory
 
-from langchain.memory import ConversationBufferMemory
+memory = ConversationBufferWindowMemory(
+    return_messages= True,
+    k=4,
+)
 
-memory = ConversationBufferMemory(return_messages=True)
+def add_message(input, output):
+    memory.save_context({"input" : input}, {"output" : output})
 
-memory.save_context({"input" : "Hi!"}, {"output" : "Hi! How are you?"})
-
-memory.load_memory_variables({})
-# '\n' means change line.
-
-# -- next code --
-memory.save_context({"input" : "Hi!"}, {"output" : "Hi! How are you?"})
-
-memory.load_memory_variables({})
-# store
+add_message(1,1)
 
 # -- next code --
+add_message(2,2)
+add_message(3,3)
+add_message(4,4)
 
-memory.save_context({"input" : "Hi!"}, {"output" : "Hi! How are you?"})
+# -- next code --
 
 memory.load_memory_variables({})
-# store
-# So, this situation shows that data is being store in memory
+# what is '({})' ?
+# () is do function code. {} is api.
+
+# -- next code --
+
+# Upper conclusion is add_message() 1 to 4
+# But, we add new message
+add_message(5,5)
+
+# -- next code --
+
+memory.load_memory_variables({})
+# So, delete (1,1) at memory(old memory).
+# Add, (5,5) at memory(new memory)
+# This is a way protect memory from excessive buffering.
