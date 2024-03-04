@@ -1,20 +1,29 @@
-#If you want to chain model
-from langchain.llms.openai import OpenAI
+# 'Conversation Buffer Memory'
+# We must use memory!
+# Why memory? Because, memory can store personal data.
+# Langchain model and model doesn't have memory. So, we must store data using memory.
+# Provides vivid conversation as if a person were speaking.
+# This memory is simple. But, this memory unsuitable big data.
 
-chat = OpenAI(
-    temperature= 0.1,
-    max_tokens=450,
-    model="gpt-3.5-turbo-0125"
-)
+from langchain.memory import ConversationBufferMemory
 
-chat.save("model.json")
-# if you want save model. use upper code
-# And then you can see 'model.json' at the left 'file-list'
+memory = ConversationBufferMemory(return_messages=True)
 
-# or you can also write this code.
-# NEW CODE
-from langchain.llms.loading import load_llm
+memory.save_context({"input" : "Hi!"}, {"output" : "Hi! How are you?"})
 
-chat = load_llm("model.json")
+memory.load_memory_variables({})
+# '\n' means change line.
 
-chat
+# -- next code --
+memory.save_context({"input" : "Hi!"}, {"output" : "Hi! How are you?"})
+
+memory.load_memory_variables({})
+# store
+
+# -- next code --
+
+memory.save_context({"input" : "Hi!"}, {"output" : "Hi! How are you?"})
+
+memory.load_memory_variables({})
+# store
+# So, this situation shows that data is being store in memory
