@@ -1,44 +1,28 @@
-# This time, use SummaryMemory by specifying a limit token. 
-from langchain.memory import ConversationSummaryBufferMemory
+# This memory 'ConversationKGMemory' is extracts the most important summary.
+from langchain.memory import ConversationKGMemory
 from langchain.chat_models import ChatOpenAI
 
-llm = ChatOpenAI(temperature=0.1)
+llm = ChatOpenAI(temperature= 0.1,)
 
-memory = ConversationSummaryBufferMemory(
+memory = ConversationKGMemory(
     llm=llm,
-    max_token_limit=150,
-    # Upper code 'max_token_limit' means limit message.
-    return_messages=True
+    return_messages=True,
 )
 
-get_history()
+def add_message(input, output):
+    memory.save_context({"input" : input}, {"output" : output})
+
+add_message("Hi, my name is Chandon, I live in South Korea", "Wow that is nice!!")
 
 # -- next code --
 
-add_message("South korea is pretty!", "I want to visit Seoul!")
+memory.load_memory_variables({"input" : "who is Chandon?"})
+# why write {"input" : "who is Chandon?"}, That is a way of asking to the memory what it knows about a specific node on the knowledge graph.
 
 # -- next code --
 
-get_history()
-#Not reach limit yet.
+add_message("Chandon likes jimin", "Wow that is great!")
 
 # -- next code --
 
-add_message("How far Seoul from Salt lake city?!", "I don't know! But, that is too far!!!")
-
-# -- next code --
-
-get_history()
-#Not reach limit yet.
-
-# -- next code --
-
-add_message("How many people live Seoul and Salt Lake City?", "I don't know! But, many people are live Seoul and Salt Lake City!")
-# Push multiple times until the limit token is reached.
-
-# -- next code --
-
-get_history()
-# Reach limit token!
-# When consuming tokens up tp the limit tokens.
-# Old data is summarized.
+memory.load_memory_variables({"input": "Report Chandon."})
