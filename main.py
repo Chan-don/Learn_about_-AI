@@ -5,8 +5,8 @@
 
 from langchain.memory import ConversationSummaryBufferMemory
 from langchain.chat_models import ChatOpenAI
-from langchain.chains import LLMChain
-#Upper chain 'LLMChain' is off-the-shelf chain.
+from langchain.schema.runnable import RunnablePassthrough
+# Upper Code is make llm model more specific.
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 # last time we just write prompt text. So, This time we send message 'text' at Chat
 # 'MessagesPlaceholder' is show organize messages. Like, AI : ~~~~, Human : ~~~~.
@@ -33,26 +33,20 @@ prompt = ChatPromptTemplate.from_messages([
     ("human", "{question}"),
 ])
 
-chain = LLMChain(
-    llm=llm,
-    memory=memory,
-    prompt=prompt,
-    verbose=True,
-    # This Upper code can show chain prompt log
-)
+def load_memory(_):
+    # '_' mean omit input code.
+    return memory.load_memory_variables({})["chat_history"]
+# Upper code is def for get memory variable
+# 'RunnablePassthrought.assign()' must take at least one argument. So, we need to enter input.
+# So, we give input in function, and print(input)
 
-chain.predict(question="I'm chandon!")
+chain = RunnablePassthrough.assign(chat_history = load_memory) | prompt | llm
+# Upper code is make chain yourself.
+# When starting a chain. RunnablePassthrought.assign starts load_memory first, then prompts and then llm.
+# 'RunnablePassthrought' function allows you to use a function before the prompt is format.
+# And also, we can assign any value we want to that function 'chat_history = load_memory'
+# And that variable is given to the prompt.
+# 'RunnablePassthrought.assign()' must take at least one argument. So, we need to enter input.
 
-# -- next code --
-
-chain.predict(question="I live in yeosu!")
-# Now, we can show System, Human, AI.
-# This is MessagesPlaceholder power.
-# That code makes the prompt look neat!
-
-# -- next code --
-
-chain.predict(question = "what is my name?")
-# Now, we can find 'Human : I'm chandon!'
-# This is chat_history. So, Now LLMChat model remember my name!
-
+chain.invoke({"question" : "My name is chandon"})
+# Upper Code == dictionary, the first input item provided in the chain.
